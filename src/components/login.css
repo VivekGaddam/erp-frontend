@@ -1,0 +1,72 @@
+.leftside {
+    width: 40%;
+}
+
+.leftside img {
+    height: 85%;
+}
+
+.rightside {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    height: 100vh;
+}
+
+.card {
+    padding: 30px;
+    width: 650px;
+    max-width: 100%;
+    height: 600px;
+}
+.card:hover{
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.imagecontainer{
+    width: 50%;
+}
+
+.logo{
+    width: 70px;
+    height: 70px;
+}
+.comeon{
+
+    position: relative;
+    display: flex;
+}
+.comeon h1{
+    width: 50%;
+    display: flex;
+    font-size: 20px;
+    justify-content: right;
+}
+.social-login span {
+    font-size: 1rem;
+    color: #555;
+}
+
+.social-icons {
+    gap: 15px;
+}
+
+.social-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #7c6ee5; /* Outline color */
+    border-radius: 50%;
+    color: #7c6ee5; /* Icon color */
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    background-color: #7c6ee5;
+    color: #fff;
+    border-color: #7c6ee5;
+}
