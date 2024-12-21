@@ -12,28 +12,27 @@ function Login({ setAttendanceData }) {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    // You can dynamically set dataType if needed, for example by adding a radio button or dropdown
+    const dataType = "attendance"; // or dynamically set based on user choice (attendance or semester)
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage("");
         setIsLoading(true);
 
-        // Basic validation
-        if (!username.trim() || !password.trim()) {
-            setErrorMessage("Both fields are required.");
-            setIsLoading(false);
-            return;
-        }
-
         try {
-            // Send login details to the backend to scrape attendance data
-            const response = await axios.post("https://erpbackend-l42j.onrender.com/attendance", {
+            // Include dataType in the request body
+            const response = await axios.post("http://localhost:5000/login", {
                 username,
                 password,
+                dataType, // Pass the dataType as part of the request body
             });
 
-            // Set attendance data to state
-            setAttendanceData(response.data); // Pass attendance data to parent
-            navigate("/home"); // Redirect to the Home component
+            // Pass the data to the parent component
+            setAttendanceData(response.data); // You can extract the necessary data from response (attendanceData, semMarksData)
+
+            // Redirect to the Home component
+            navigate("/home");
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.error || "Failed to log in. Please try again."
