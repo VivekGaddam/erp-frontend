@@ -1,15 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./home.css";
 
-const Home = ({ attendanceData }) => {
-  // Check if attendanceData exists and is in the correct format
-  if (!attendanceData) {
-    return (
-      <div className="no-data-container">
-        <div className="no-data-message">No data available.</div>
-      </div>
-    );
-  }
+const Home = () => {
+  const [attendanceData, setAttendanceData] = useState(null);
+  const [semesterData, setSemesterData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post("http://localhost:5000/data", {
+          username: "yourUsername",  // Replace with actual username
+          password: "yourPassword",  // Replace with actual password
+        });
+        setAttendanceData(response.data);
+        setSemesterData(response.data.semesterData);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const getProgressBarColor = (percentage) => {
     const numPercent = parseFloat(percentage);
@@ -19,116 +31,70 @@ const Home = ({ attendanceData }) => {
     return "progress-red";
   };
 
-  const calculateRemainingLeaves = (attendancePercentage, totalClasses, attendedClasses) => {
-    const minAttendance = 0.75; // Minimum attendance percentage
-    const maxLeaves = Math.floor((1 - minAttendance) * totalClasses / minAttendance);
-    const leavesTaken = totalClasses - attendedClasses;
-    const remainingLeaves = maxLeaves - leavesTaken;
-    return remainingLeaves;
-  };
+  // Check if data is available
+  if (!attendanceData || !semesterData) {
+    return (
+      <div className="no-data-container">
+        <div className="no-data-message">
+          Loading data...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="home-container">
       {/* Title */}
-      <h1 className="page-title">Student Data</h1>
+      <h1 className="page-title">Attendance and Semester Data</h1>
 
-      {/* Total Attendance Section */}
-      {attendanceData.totalAttendance && (
-        <div className="card">
-          <h2 className="card-title">Total Attendance</h2>
-          <div className="card-body">
-            <p>
-              Classes Attended: {attendanceData.totalAttendance.classesAttended} out of{" "}
-              {attendanceData.totalAttendance.classesHeld}
-            </p>
-            <p className="attendance-percentage">
-              {attendanceData.totalAttendance.attendancePercentage}%
-            </p>
+      {/* Total Attendance Card */}
+      <div className="card">
+        <h2 className="card-title">Total Attendance</h2>
+        <div className="card-body">
+          <p>
+            Classes Attended: {attendanceData.totalAttendance?.classesAttended} out of {attendanceData.totalAttendance?.classesHeld}
+          </p>
+          <p className="attendance-percentage">
+            {attendanceData.totalAttendance?.attendancePercentage}%
+          </p>
+          <div className="progress-bar">
+            <div
+              className={`progress-fill ${getProgressBarColor(attendanceData.totalAttendance?.attendancePercentage)}`}
+              style={{ width: `${attendanceData.totalAttendance?.attendancePercentage}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Semester Marks Card */}
+      <div className="card mt-4">
+        <h2 className="card-title">Semester Marks</h2>
+        <div className="card-body">
+          <p><strong>CGPA:</strong> {semesterData?.cgpa}</p>
+          <p><strong>Credits Obtained:</strong> {semesterData?.creditsObtained}</p>
+          <p><strong>Subjects Due:</strong> {semesterData?.subjectDue}</p>
+        </div>
+      </div>
+
+      {/* Subject Attendance Cards */}
+      <div className="subject-cards mt-4">
+        {attendanceData?.attendanceData?.map((record, index) => (
+          <div key={index} className="subject-card">
+            <h3 className="subject-name">{record.subject}</h3>
+            {record.faculty && (
+              <p className="faculty-name">Faculty: {record.faculty}</p>
+            )}
+            <p>Classes Attended: {record.classesAttended} out of {record.classesHeld}</p>
+            <p className="attendance-percentage">{record.attendancePercentage}%</p>
             <div className="progress-bar">
               <div
-                className={`progress-fill ${getProgressBarColor(
-                  attendanceData.totalAttendance.attendancePercentage
-                )}`}
-                style={{
-                  width: `${attendanceData.totalAttendance.attendancePercentage}%`,
-                }}
+                className={`progress-fill ${getProgressBarColor(record.attendancePercentage)}`}
+                style={{ width: `${record.attendancePercentage}%` }}
               />
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Subject Attendance Section */}
-      {attendanceData.attendanceData && (
-        <div className="subject-cards">
-          {attendanceData.attendanceData.map((record, index) => {
-            const remainingLeaves = calculateRemainingLeaves(
-              record.attendancePercentage,
-              record.classesHeld,
-              record.classesAttended
-            );
-            return (
-              <div key={index} className="subject-card">
-                <h3 className="subject-name">{record.subject}</h3>
-                {record.faculty && (
-                  <p className="faculty-name">Faculty: {record.faculty}</p>
-                )}
-                <p>
-                  Classes Attended: {record.classesAttended} out of{" "}
-                  {record.classesHeld}
-                </p>
-                <p className="attendance-percentage">
-                  {record.attendancePercentage}%
-                </p>
-                <div className="progress-bar">
-                  <div
-                    className={`progress-fill ${getProgressBarColor(
-                      record.attendancePercentage
-                    )}`}
-                    style={{
-                      width: `${record.attendancePercentage}%`,
-                    }}
-                  />
-                </div>
-                <div className="remaining-leaves">
-                  Remaining Leaves: {remainingLeaves}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Semester Marks Section */}
-      {attendanceData.semMarksData && (
-        <div className="sem-marks-section">
-          <h2 className="section-title">Semester Marks</h2>
-          <div className="sem-marks-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Subject</th>
-                  <th>Internal Marks</th>
-                  <th>External Marks</th>
-                  <th>Total Marks</th>
-                  <th>Grade</th>
-                </tr>
-              </thead>
-              <tbody>
-                {attendanceData.semMarksData.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record.subject}</td>
-                    <td>{record.internalMarks}</td>
-                    <td>{record.externalMarks}</td>
-                    <td>{record.totalMarks}</td>
-                    <td>{record.grade}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
