@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.post("http://localhost:5000/data", {
+        const response = await axios.post("https://erpbackend-l42j.onrender.com/data", {
           username: "yourUsername",  // Replace with actual username
           password: "yourPassword",  // Replace with actual password
         });

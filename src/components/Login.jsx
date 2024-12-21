@@ -26,7 +26,7 @@ function Login({ setAttendanceData }) {
 
         try {
             // Send login details to the backend to scrape attendance data
-            const response = await axios.post("http://localhost:5000/attendance", {
+            const response = await axios.post("https://erpbackend-l42j.onrender.com/attendance", {
                 username,
                 password,
             });
